@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Brush,
   Building2,
@@ -114,6 +117,26 @@ export default function Home() {
 }
 
 function Header() {
+  const [activeItem, setActiveItem] = useState(navItems[0]);
+
+  useEffect(() => {
+    const syncActiveItem = () => {
+      const hash = window.location.hash.replace("#", "");
+      const item = navItems.find(
+        (navItem) => navItem.toLowerCase().replaceAll(" ", "-") === hash,
+      );
+
+      if (item) {
+        setActiveItem(item);
+      }
+    };
+
+    syncActiveItem();
+    window.addEventListener("hashchange", syncActiveItem);
+
+    return () => window.removeEventListener("hashchange", syncActiveItem);
+  }, []);
+
   return (
     <header className="fixed top-0 z-50 w-full border-b border-border-light bg-surface shadow-sm backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-container-max items-center justify-between gap-4 px-gutter">
@@ -122,15 +145,16 @@ function Header() {
           <span className="truncate font-display text-xl font-bold">Anthem Media</span>
         </a>
         <nav className="hidden items-center gap-8 md:flex" aria-label="Primary navigation">
-          {navItems.map((item, index) => (
+          {navItems.map((item) => (
             <a
               className={
-                index === 0
+                activeItem === item
                   ? "border-b-2 border-primary pb-1 font-bold text-primary"
                   : "text-on-surface-variant transition-colors hover:text-primary"
               }
               href={`#${item.toLowerCase().replaceAll(" ", "-")}`}
               key={item}
+              onClick={() => setActiveItem(item)}
             >
               {item}
             </a>
@@ -157,7 +181,10 @@ function Hero() {
         <div className="space-y-8 lg:col-span-6">
 
           <h1 className="max-w-3xl font-display text-5xl font-bold leading-tight text-on-surface sm:text-6xl lg:text-7xl">
-            Turn Everyday Screens Into{" "}
+            Turn Everyday
+            <br />
+            Screens Into
+            <br />
             <span className="text-primary-container">Local Attention</span>
           </h1>
           <p className="max-w-xl text-lg leading-8 text-on-surface-variant">
