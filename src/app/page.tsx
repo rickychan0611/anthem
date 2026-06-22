@@ -1,21 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Brush,
   Building2,
-  CheckCircle,
-  ClipboardList,
   Megaphone,
   Monitor,
-  MousePointerClick,
   QrCode,
-  RadioTower,
-  Settings,
-  Share2,
   ShoppingBag,
-  Store,
+  ShoppingCart,
   Users,
+  X,
 } from "lucide-react";
 
 const logoUrl = "/anthem-logo.png";
@@ -24,80 +19,82 @@ const heroImage = "/hero.png";
 const locationsMapImage = "/locations-map.png";
 
 const screenImages = [
-  {
-    label: "Boutiques",
-    src: "/shop.png",
-  },
-  {
-    label: "City Streets",
-    src: "/street.png",
-  },
-  {
-    label: "Medical Clinics",
-    src: "https://lh3.googleusercontent.com/aida-public/AB6AXuBg7X0I6AdZVY_bzMTviFVeS1yvmZhG1SbGsmXAQVOnLHuQSjoHB_0c0YHQalPoef4YjXSzcOPH1n3lYwr1N8xnTGpNBBgJhdNHY_bbwyHp1q_Ja5KdT5sbxadKEE_IedrxXMnWBi-NN3C4HexsRYohytk_CNo2XD9FTrW2eLP3deBRmfc-tVrMlFGiYSh0czTzKwyeiYNZUjLZG-zovo8Ru-YiLyLJfxBrMga_wNXkLLcMLS8Im4nN8ASj6cnXflJ1shC-j0lCWRg",
-  },
+  { label: "Tuth Dental", src: "/TuthDental.png" },
+  { label: "RBC", src: "/RBC1.png" },
+  { label: "Coast Capital", src: "/CoastCaptial.png" },
+  { label: "BMO", src: "/BMO.png" },
+  { label: "Pegasus Health", src: "/Pegasus.png" },
+  { label: "Honda", src: "/Honda.png" },
 ];
 
-const serviceImage = "computer.png"
-const navItems = ["Solutions", "Locations", "Services", "How It Works", "Contact"];
+const navItems = [
+  { label: "Home", href: "#top" },
+  { label: "For Advertisers", href: "#for-advertisers" },
+  { label: "Become a Host", href: "#become-a-host" },
+  { label: "Contact", href: "#contact" },
+];
 
 const locationTypes = [
-  { label: "Shopping Malls", icon: ShoppingBag },
-  { label: "Commercial Areas", icon: Building2 },
-  { label: "City Streets", icon: Users },
-  { label: "Building Lobbies", icon: Store },
+  { label: "Newcomer Centres", icon: Users },
+  { label: "Malls & Retail", icon: ShoppingBag },
+  { label: "Supermarkets", icon: ShoppingCart },
+  { label: "Building Lobbies", icon: Building2 },
 ];
 
 const brandBenefits = [
   {
-    title: "Promote Offers",
-    body: "Instantly broadcast your latest sales and limited-time offers to people already out shopping.",
+    title: "Reach",
+    body: "Be present and unmissable in front of your key customers for growth.",
     icon: Megaphone,
   },
   {
-    title: "Update Remotely",
-    body: "Manage your screen network from a single dashboard with real-time content deployment.",
-    icon: Settings,
-  },
-  {
-    title: "Drive Action",
-    body: "Integrated QR codes turn passive viewers into active leads and website visitors instantly.",
-    icon: QrCode,
-  },
-  {
-    title: "Local Ad Hub",
-    body: "Unlock new revenue streams by offering ad space to complementary local businesses.",
-    icon: Store,
-  },
-];
-
-const mediaServices = [
-  {
-    title: "Content Design",
-    body: "Custom creative designed for maximum local impact.",
-    icon: Brush,
-  },
-  {
-    title: "Management",
-    body: "Active monitoring to keep screens healthy and campaigns live.",
+    title: "Inform",
+    body: "Make potential customers aware of your latest promos and offers.",
     icon: Monitor,
   },
   {
-    title: "QR Integration",
-    body: "Custom landing pages for your screen campaigns.",
-    icon: MousePointerClick,
+    title: "Convert",
+    body: "Include a QR code, phone number, or other info to engage and convert.",
+    icon: QrCode,
   },
   {
-    title: "Monthly Support",
-    body: "Local support available when you need help.",
-    icon: ClipboardList,
+    title: "Inspire",
+    body: "Make use of 15- or 30-spots to showcase your creativity through an image or video.",
+    icon: Brush,
   },
 ];
 
-const campaignSteps = [
-  ["Choose Goal", "Identify your target local audience and campaign objectives."],
-  ["Create Content", "Our design team crafts high-impact visuals for your screens."],
-  ["Launch", "Your campaign goes live across selected premium locations."],
+const hostBenefits = [
+  {
+    title: "Modernize Your Business",
+    body: "We provide our hosts with premium high-resolution screens free of charge.",
+    icon: Monitor,
+  },
+  {
+    title: "Announce Offers",
+    body: "Two 15-second spots are reserved for your promos, offers, and specials.",
+    icon: Megaphone,
+  },
+  {
+    title: "Revenue Share",
+    body: "Generate passive income whenever we run a paid campaign.",
+    icon: Building2,
+  },
+];
+
+const hostSteps = [
+  [
+    "Contact Us",
+    "Reach out to us using the form below and we'll schedule to meet you at your location.",
+  ],
+  [
+    "Feasibility Check",
+    "We'll propose screen placements and give you an idea of the work we'll need to do (if any).",
+  ],
+  [
+    "Setup & Launch",
+    "We provide all required hardware, and cover installation and setup with zero disruption to your business.",
+  ],
 ];
 
 export default function Home() {
@@ -107,9 +104,8 @@ export default function Home() {
       <Hero />
       <LocationStrip />
       <Benefits />
-      <ScreensGrid />
-      <MediaServices />
-      <CampaignSteps />
+      <HostBenefits />
+      <HostSteps />
       <ContactCta />
       <Footer />
     </main>
@@ -117,17 +113,15 @@ export default function Home() {
 }
 
 function Header() {
-  const [activeItem, setActiveItem] = useState(navItems[0]);
+  const [activeItem, setActiveItem] = useState(navItems[0].label);
 
   useEffect(() => {
     const syncActiveItem = () => {
-      const hash = window.location.hash.replace("#", "");
-      const item = navItems.find(
-        (navItem) => navItem.toLowerCase().replaceAll(" ", "-") === hash,
-      );
+      const hash = window.location.hash || "#top";
+      const item = navItems.find((navItem) => navItem.href === hash);
 
       if (item) {
-        setActiveItem(item);
+        setActiveItem(item.label);
       }
     };
 
@@ -142,30 +136,23 @@ function Header() {
       <div className="mx-auto flex h-20 max-w-container-max items-center justify-between gap-4 px-gutter">
         <a className="flex min-w-0 items-center gap-3" href="#top" aria-label="Anthem Media home">
           <img alt="" className="h-[59px] w-auto shrink-0" src={logoUrl} />
-          <span className="truncate font-display text-xl font-bold">Anthem Media</span>
         </a>
         <nav className="hidden items-center gap-8 md:flex" aria-label="Primary navigation">
-          {navItems.map((item) => (
+          {navItems.map(({ label, href }) => (
             <a
               className={
-                activeItem === item
+                activeItem === label
                   ? "border-b-2 border-primary pb-1 font-bold text-primary"
                   : "text-on-surface-variant transition-colors hover:text-primary"
               }
-              href={`#${item.toLowerCase().replaceAll(" ", "-")}`}
-              key={item}
-              onClick={() => setActiveItem(item)}
+              href={href}
+              key={label}
+              onClick={() => setActiveItem(label)}
             >
-              {item}
+              {label}
             </a>
           ))}
         </nav>
-        <a
-          className="hidden rounded-full bg-primary-container px-6 py-3 font-bold text-on-primary-container shadow-sm transition-all hover:bg-mint-hover sm:inline-flex"
-          href="#contact"
-        >
-          Get a Free Demo
-        </a>
       </div>
     </header>
   );
@@ -181,43 +168,39 @@ function Hero() {
         <div className="space-y-8 lg:col-span-6">
 
           <h1 className="max-w-3xl font-display text-5xl font-bold leading-tight text-on-surface sm:text-6xl lg:text-7xl">
-            Turn Everyday
+            Out-of-Home
             <br />
-            Screens Into
+            Solutions for
             <br />
-            <span className="text-primary-container">Local Attention</span>
+            <span className="text-primary-container">Multicultural Advertising</span>
           </h1>
           <p className="max-w-xl text-lg leading-8 text-on-surface-variant">
-            Anthem Media helps businesses dominate local attention
-            through premium digital-out-of-home (DOOH) screens in high-traffic commercial
-            hubs.
+            Our out-of-home advertising solutions help brands and businesses get
+            their message in front of newcomers and multicultural audiences in
+            high-traffic locations.
           </p>
           <div className="flex flex-col gap-3 pt-2 sm:flex-row">
             <a
               className="inline-flex items-center justify-center rounded-full bg-primary-container px-8 py-4 font-bold text-[#121212] shadow-md transition-all hover:-translate-y-0.5 hover:bg-on-primary-container"
               href="#contact"
             >
-              Get a Free Demo
+              Talk to Us Today
             </a>
             <a
               className="inline-flex items-center justify-center rounded-full border border-border-light bg-white px-8 py-4 font-bold text-on-surface transition-all hover:bg-surface-container-low"
-              href="#how-it-works"
+              href="#become-a-host"
             >
-              See How It Works
+              Become a Host
             </a>
           </div>
         </div>
         <div className="lg:col-span-6">
-          <div className="relative overflow-hidden rounded-card border-4 border-white shadow-2xl">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-card border-4 border-white shadow-2xl">
             <img
-              alt="Digital signage in a modern cafe"
-              className="aspect-[4/3] w-full object-cover"
+              alt="Digital signage in a modern cafe with diverse customers"
+              className="h-full w-full object-cover"
               src={heroImage}
             />
-            <div className="absolute left-6 top-6 flex items-center gap-2 rounded-full bg-primary/90 px-4 py-2 text-xs font-bold uppercase text-white shadow-lg backdrop-blur-sm">
-              <span className="size-2 rounded-full bg-white" />
-              Live Screen
-            </div>
           </div>
         </div>
       </div>
@@ -228,7 +211,7 @@ function Hero() {
 function LocationStrip() {
   return (
     <section
-      id="locations"
+      id="become-a-host"
       className="relative z-20 flex min-h-[20rem] items-center justify-center bg-cover bg-center px-gutter py-16 md:min-h-[20rem] md:py-24"
       style={{ backgroundImage: `url(${locationsMapImage})` }}
     >
@@ -247,11 +230,33 @@ function LocationStrip() {
 }
 
 function Benefits() {
+  const [selectedCampaign, setSelectedCampaign] = useState<
+    (typeof screenImages)[number] | null
+  >(null);
+
+  useEffect(() => {
+    if (!selectedCampaign) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedCampaign(null);
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [selectedCampaign]);
+
   return (
-    <section id="solutions" className="px-gutter py-section-gap-mobile md:py-[61px]">
+    <section id="for-advertisers" className="px-gutter py-section-gap-mobile md:py-[61px]">
       <SectionIntro
-        title="Empowering Local Brands"
-        body="Our technology bridges the gap between digital content and the physical local community."
+        title="Helping Advertisers Effectively Reach Newcomers and Ethnic Audiences"
+        body="Our high resolution displays are strategically placed inside high traffic locations frequently visited by newcomers, international students, and members of various ethnic communities."
       />
       <div className="mx-auto grid max-w-container-max grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {brandBenefits.map(({ title, body, icon: Icon }) => (
@@ -267,100 +272,105 @@ function Benefits() {
           </article>
         ))}
       </div>
+      <div className="mx-auto mt-16 max-w-container-max md:mt-20">
+        <h2 className="mb-12 font-display text-4xl font-bold leading-tight md:text-5xl">
+          Some of Our Past Campaigns
+        </h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
+          {screenImages.map(({ label, src }) => (
+            <button
+              className="group relative aspect-square cursor-pointer overflow-hidden rounded-card border-0 p-0 text-left"
+              key={label}
+              onClick={() => setSelectedCampaign({ label, src })}
+              type="button"
+            >
+              <img
+                alt={`${label} with Anthem Media digital signage`}
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                src={src}
+              />
+              <span className="absolute inset-0 flex items-end bg-gradient-to-t from-black/65 to-transparent p-4 sm:p-6">
+                <span className="font-display text-lg font-semibold text-white sm:text-xl">
+                  {label}
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {selectedCampaign ? (
+        <div
+          aria-label={selectedCampaign.label}
+          aria-modal="true"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+          onClick={() => setSelectedCampaign(null)}
+          role="dialog"
+        >
+          <button
+            aria-label="Close enlarged image"
+            className="absolute right-4 top-4 flex size-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+            onClick={() => setSelectedCampaign(null)}
+            type="button"
+          >
+            <X aria-hidden className="size-6" />
+          </button>
+          <div
+            className="relative w-full max-w-5xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <img
+              alt={`${selectedCampaign.label} with Anthem Media digital signage`}
+              className="max-h-[85vh] w-full rounded-card object-contain"
+              src={selectedCampaign.src}
+            />
+            <p className="mt-4 text-center font-display text-xl font-semibold text-white">
+              {selectedCampaign.label}
+            </p>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
 
-function ScreensGrid() {
+function HostBenefits() {
   return (
-    <section className="bg-surface-container-low px-gutter py-section-gap-mobile md:py-[60px]">
-      <div className="mx-auto mb-12 max-w-container-max">
-        <h2 className="mb-4 font-display text-4xl font-bold leading-tight md:text-5xl">
-          Screens in the Wild
-        </h2>
-        <p className="max-w-xl text-lg leading-8 text-on-surface-variant">
-          From bubble tea shops to medical clinics, our screens are positioned
-          where local attention naturally gathers.
-        </p>
-      </div>
-      <div className="mx-auto grid max-w-container-max grid-cols-1 gap-6 md:grid-cols-3">
-        {screenImages.map(({ label, src }) => (
-          <figure
-            className="group relative h-80 overflow-hidden rounded-card sm:h-96 md:h-[430px]"
-            key={label}
+    <section className="px-gutter py-section-gap-mobile md:py-[60px]">
+      <SectionIntro
+        title="Benefits of Becoming a Host"
+        body="Becoming a host for our screen network is extremely simple and brings about several benefits for your business."
+      />
+      <div className="mx-auto max-w-container-max overflow-hidden rounded-card border border-border-light divide-y divide-border-light">
+        {hostBenefits.map(({ title, body, icon: Icon }) => (
+          <article
+            className="flex flex-col gap-4 bg-white p-6 sm:flex-row sm:items-start sm:gap-6 sm:p-8"
+            key={title}
           >
-            <img
-              alt={`${label} with Anthem Media digital signage`}
-              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              src={src}
-            />
-            <figcaption className="absolute inset-0 flex items-end bg-gradient-to-t from-black/65 to-transparent p-8">
-              <span className="font-display text-2xl font-semibold text-white">
-                {label}
-              </span>
-            </figcaption>
-          </figure>
+            <div className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-mint-soft">
+              <Icon aria-hidden className="size-8 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="mb-2 font-display text-xl font-semibold sm:text-2xl">{title}</h3>
+              <p className="leading-7 text-on-surface-variant">{body}</p>
+            </div>
+          </article>
         ))}
       </div>
     </section>
   );
 }
 
-function MediaServices() {
+function HostSteps() {
   return (
-    <section id="services" className="px-gutter py-section-gap-mobile md:py-[60px]">
-      <div className="mx-auto grid max-w-container-max grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
-        <div className="space-y-8">
-          <div>
-            <h2 className="mb-4 font-display text-4xl font-bold leading-tight md:text-5xl">
-              End-to-End Media Management
-            </h2>
-            <p className="text-lg leading-8 text-on-surface-variant">
-              We provide the strategy, design, and support to ensure your message
-              lands clearly every time.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {mediaServices.map(({ title, body, icon: Icon }) => (
-              <article
-                className="rounded-card border border-border-light bg-surface-neutral p-6"
-                key={title}
-              >
-                <Icon aria-hidden className="mb-4 size-8 text-primary" />
-                <h3 className="mb-2 font-bold">{title}</h3>
-                <p className="text-sm leading-6 text-on-surface-variant">{body}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-        <img
-          alt="Media strategist reviewing digital signage layouts"
-          className="aspect-[5/4] w-full rounded-card object-cover shadow-xl"
-          src={serviceImage}
-        />
-      </div>
-    </section>
-  );
-}
-
-function CampaignSteps() {
-  return (
-    <section
-      id="how-it-works"
-      className="bg-on-surface px-gutter py-section-gap-mobile text-white md:py-[70px]"
-    >
+    <section className="bg-on-surface px-gutter py-section-gap-mobile text-white md:py-[70px]">
       <div className="mx-auto max-w-container-max">
-        <div className="mb-16 text-center">
-          <h2 className="mb-4 font-display text-4xl font-bold leading-tight md:text-5xl">
-            How Your Campaign Works
-          </h2>
-          <p className="text-lg leading-8 text-surface-container/80">
-            Simple, transparent, and effective local advertising.
-          </p>
-        </div>
+        <h2 className="mb-16 text-center font-display text-4xl font-bold leading-tight md:text-5xl">
+          3 Steps to Become a Host
+        </h2>
         <div className="relative isolate grid grid-cols-1 gap-10 md:grid-cols-3">
           <div className="absolute left-0 top-10 z-0 hidden h-px w-full bg-white/20 md:block" />
-          {campaignSteps.map(([title, body], index) => (
+          {hostSteps.map(([title, body], index) => (
             <article className="relative z-10 space-y-5 text-center md:text-left" key={title}>
               <div
                 className={`mx-auto flex size-20 items-center justify-center rounded-full text-3xl font-bold md:mx-0 ${index === 0
@@ -386,58 +396,55 @@ function ContactCta() {
       id="contact"
       className="relative overflow-hidden bg-mint-soft px-gutter py-section-gap-mobile md:py-section-gap"
     >
-      <div className="mx-auto grid max-w-container-max grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
+      <div className="mx-auto grid max-w-container-max grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-20">
         <div>
-          <h2 className="mb-8 font-display text-4xl font-bold leading-tight text-on-surface md:text-6xl">
-            Let&apos;s Put Your Business On Screen
+          <h2 className="mb-6 font-display text-4xl font-bold leading-tight text-on-surface md:text-5xl">
+            Contact Us Today
           </h2>
-          <p className="mb-10 text-lg leading-8 text-on-surface-variant">
-            Join businesses seeing growth through Anthem Media&apos;s
-            digital-out-of-home network. Book your personalized demo today.
+          <p className="text-lg leading-8 text-on-surface-variant">
+            Whether you&apos;re a potential advertiser or interested in becoming a host
+            for our screens, feel free to drop us a message and we&apos;ll be in touch
+            with you shortly!
           </p>
-          <div className="space-y-5">
-            {[
-              "100% locally owned and operated",
-              "Zero-hassle installation and support",
-              "Flexible advertising packages",
-            ].map((item) => (
-              <div className="flex items-start gap-4" key={item}>
-                <CheckCircle aria-hidden className="mt-0.5 size-6 text-primary" />
-                <span className="font-bold text-on-surface">{item}</span>
-              </div>
-            ))}
-          </div>
         </div>
         <form className="rounded-card border border-border-light bg-white p-6 shadow-2xl sm:p-10">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <LabelInput label="Your name" placeholder="" type="text" />
-            <LabelInput
-              label="Business name"
-              placeholder=""
-              type="text"
-            />
+            <LabelInput label="Your Name" placeholder="" required type="text" />
+            <LabelInput label="Business Name" placeholder="" required type="text" />
           </div>
           <LabelInput
             className="mt-6"
+            label="Email Address"
+            placeholder=""
+            required
+            type="email"
+          />
+          <LabelInput
+            className="mt-6"
             label="Website URL"
+            optional
             placeholder=""
             type="url"
           />
           <LabelInput
             className="mt-6"
-            label="Email address"
+            label="Phone Number"
             placeholder=""
-            type="email"
+            required
+            type="tel"
+          />
+          <LabelTextarea
+            className="mt-6"
+            label="Your Message"
+            placeholder=""
+            required
           />
           <button
             className="mt-6 w-full rounded-lg bg-mint-hover py-5 font-bold text-on-primary-container shadow-md transition-all hover:-translate-y-0.5 hover:bg-on-primary-container"
             type="submit"
           >
-            Submit My Request
+            Submit
           </button>
-          <p className="mt-4 text-center text-xs text-on-surface-variant/70">
-            We respect your privacy. No spam, ever.
-          </p>
         </form>
       </div>
     </section>
@@ -449,21 +456,72 @@ function LabelInput({
   placeholder,
   type,
   className = "",
+  required = false,
+  optional = false,
 }: {
   label: string;
   placeholder: string;
   type: string;
   className?: string;
+  required?: boolean;
+  optional?: boolean;
 }) {
   return (
     <label className={`block space-y-2 ${className}`}>
       <span className="ml-1 block text-xs font-bold uppercase text-on-surface-variant">
         {label}
+        {required ? <span className="text-primary"> *</span> : null}
+        {optional ? (
+          <span className="font-normal normal-case text-on-surface-variant/70">
+            {" "}
+            (optional)
+          </span>
+        ) : null}
       </span>
       <input
         className="w-full rounded-lg border border-border-light px-5 py-4 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary-container"
         placeholder={placeholder}
+        required={required}
         type={type}
+      />
+    </label>
+  );
+}
+
+function LabelTextarea({
+  label,
+  placeholder,
+  className = "",
+  required = false,
+}: {
+  label: string;
+  placeholder: string;
+  className?: string;
+  required?: boolean;
+}) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const resizeTextarea = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  };
+
+  return (
+    <label className={`block space-y-2 ${className}`}>
+      <span className="ml-1 block text-xs font-bold uppercase text-on-surface-variant">
+        {label}
+        {required ? <span className="text-primary"> *</span> : null}
+      </span>
+      <textarea
+        className="min-h-32 w-full resize-none overflow-hidden rounded-lg border border-border-light px-5 py-4 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary-container"
+        onInput={resizeTextarea}
+        placeholder={placeholder}
+        ref={textareaRef}
+        required={required}
+        rows={4}
       />
     </label>
   );
@@ -471,75 +529,30 @@ function LabelInput({
 
 function Footer() {
   return (
-    <footer className="w-full bg-surface-container px-gutter py-section-gap-mobile text-on-surface md:py-section-gap">
-      <div className="mx-auto grid max-w-container-max grid-cols-1 gap-10 md:grid-cols-12">
-        <div className="space-y-6 md:col-span-4">
-          <div className="flex items-center gap-3">
-            <img alt="" className="h-10 w-auto opacity-80" src={logoUrl} />
-            <span className="font-display text-xl font-bold">Anthem Media</span>
-          </div>
-          <p className="max-w-sm leading-7 text-on-surface-variant">
-            Premier digital-out-of-home (DOOH) media network, connecting
-            local businesses with the community through smart digital signage.
-          </p>
-          <div className="flex gap-3">
-            {[Share2, RadioTower].map((Icon, index) => (
-              <a
-                aria-label={index === 0 ? "Share Anthem Media" : "Visit Anthem Media online"}
-                className="flex size-10 items-center justify-center rounded-full bg-white text-primary shadow-sm transition-all hover:bg-primary hover:text-white"
-                href="#"
-                key={index}
-              >
-                <Icon aria-hidden className="size-5" />
-              </a>
-            ))}
-          </div>
-        </div>
-        <FooterLinks title="Company" links={["Solutions", "Locations", "Services"]} />
-        <FooterLinks
-          title="Resources"
-          links={["How It Works", "Case Studies", "Contact"]}
-        />
-        <div className="space-y-5 md:col-span-4">
-          <h3 className="font-bold">Stay Updated</h3>
-          <form className="flex gap-2">
-            <input
-              className="min-w-0 flex-1 rounded-lg border border-border-light bg-white px-4 outline-none focus:ring-2 focus:ring-primary-container"
-              placeholder="Your email"
-              type="email"
-            />
-            <button
-              className="rounded-lg bg-mint-hover px-5 py-3 font-bold text-on-primary-container transition-all hover:bg-on-primary-container"
-              type="submit"
+    <footer className="flex w-full flex-col bg-surface-container px-gutter pt-section-gap-mobile text-on-surface md:pt-section-gap">
+      <div className="mx-auto flex w-full max-w-container-max flex-col gap-10 md:flex-row md:items-center md:justify-between">
+        <a aria-label="Anthem Media home" href="#top">
+          <img alt="" className="h-16 w-auto md:h-24" src={logoUrl} />
+        </a>
+        <nav
+          aria-label="Footer navigation"
+          className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8 sm:gap-y-3"
+        >
+          {navItems.map(({ label, href }) => (
+            <a
+              className="font-medium text-on-surface-variant transition-colors hover:text-primary hover:underline"
+              href={href}
+              key={label}
             >
-              Join
-            </button>
-          </form>
-          <p className="text-xs text-on-surface-variant">
-            © 2026 Anthem Media. All rights reserved.
-          </p>
-        </div>
+              {label}
+            </a>
+          ))}
+        </nav>
       </div>
+      <p className="mx-auto mt-12 w-full max-w-container-max border-t border-border-light pt-6 pb-8 text-center text-xs text-on-surface-variant">
+        © 2026 Anthem Media. All rights reserved.
+      </p>
     </footer>
-  );
-}
-
-function FooterLinks({ title, links }: { title: string; links: string[] }) {
-  return (
-    <div className="space-y-5 md:col-span-2">
-      <h3 className="font-bold">{title}</h3>
-      <nav className="flex flex-col gap-3" aria-label={title}>
-        {links.map((link) => (
-          <a
-            className="text-on-surface-variant transition-all hover:text-primary hover:underline"
-            href={`#${link.toLowerCase().replaceAll(" ", "-")}`}
-            key={link}
-          >
-            {link}
-          </a>
-        ))}
-      </nav>
-    </div>
   );
 }
 
