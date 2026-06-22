@@ -211,7 +211,6 @@ function Hero() {
 function LocationStrip() {
   return (
     <section
-      id="become-a-host"
       className="relative z-20 flex min-h-[20rem] items-center justify-center bg-cover bg-center px-gutter py-16 md:min-h-[20rem] md:py-24"
       style={{ backgroundImage: `url(${locationsMapImage})` }}
     >
@@ -363,7 +362,10 @@ function HostBenefits() {
 
 function HostSteps() {
   return (
-    <section className="bg-on-surface px-gutter py-section-gap-mobile text-white md:py-[70px]">
+    <section
+      id="become-a-host"
+      className="bg-on-surface px-gutter py-section-gap-mobile text-white md:py-[70px]"
+    >
       <div className="mx-auto max-w-container-max">
         <h2 className="mb-16 text-center font-display text-4xl font-bold leading-tight md:text-5xl">
           3 Steps to Become a Host
