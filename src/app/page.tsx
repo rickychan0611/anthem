@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Brush,
   Building2,
+  Menu,
   Megaphone,
   Monitor,
   QrCode,
@@ -59,7 +60,7 @@ const brandBenefits = [
   },
   {
     title: "Inspire",
-    body: "Make use of 15- or 30-spots to showcase your creativity through an image or video.",
+    body: "Use 15 or 30-second spots to showcase your creativity through an image or video.",
     icon: Brush,
   },
 ];
@@ -114,6 +115,7 @@ export default function Home() {
 
 function Header() {
   const [activeItem, setActiveItem] = useState(navItems[0].label);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const syncActiveItem = () => {
@@ -130,6 +132,29 @@ function Header() {
 
     return () => window.removeEventListener("hashchange", syncActiveItem);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuOpen]);
+
+  const handleNavClick = (label: string) => {
+    setActiveItem(label);
+    setMenuOpen(false);
+  };
 
   return (
     <header className="fixed top-0 z-50 w-full border-b border-border-light bg-surface shadow-sm backdrop-blur-md">
@@ -153,7 +178,47 @@ function Header() {
             </a>
           ))}
         </nav>
+        <button
+          aria-controls="mobile-nav"
+          aria-expanded={menuOpen}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          className="inline-flex size-11 items-center justify-center rounded-lg text-on-surface transition-colors hover:bg-surface-container md:hidden"
+          onClick={() => setMenuOpen((open) => !open)}
+          type="button"
+        >
+          {menuOpen ? <X aria-hidden className="size-6" /> : <Menu aria-hidden className="size-6" />}
+        </button>
       </div>
+
+      {menuOpen ? (
+        <button
+          aria-label="Close menu"
+          className="fixed inset-0 top-20 z-40 bg-black/40 md:hidden"
+          onClick={() => setMenuOpen(false)}
+          type="button"
+        />
+      ) : null}
+
+      <nav
+        aria-label="Mobile navigation"
+        className={`fixed right-0 top-20 z-50 flex h-[calc(100dvh-5rem)] w-72 max-w-[85vw] flex-col gap-1 border-l border-border-light bg-surface p-6 shadow-xl transition-transform duration-300 ease-in-out md:hidden ${menuOpen ? "translate-x-0" : "translate-x-full pointer-events-none"}`}
+        id="mobile-nav"
+      >
+        {navItems.map(({ label, href }) => (
+          <a
+            className={
+              activeItem === label
+                ? "rounded-lg bg-mint-soft px-4 py-3 font-bold text-primary"
+                : "rounded-lg px-4 py-3 font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-primary"
+            }
+            href={href}
+            key={label}
+            onClick={() => handleNavClick(label)}
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
     </header>
   );
 }
@@ -254,8 +319,14 @@ function Benefits() {
   return (
     <section id="for-advertisers" className="px-gutter py-section-gap-mobile md:py-[61px]">
       <SectionIntro
-        title="Helping Advertisers Effectively Reach Newcomers and Ethnic Audiences"
-        body="Our high resolution displays are strategically placed inside high traffic locations frequently visited by newcomers, international students, and members of various ethnic communities."
+        title={
+          <>
+            Helping Advertisers Effectively Reach
+            <br />
+            Newcomers and Ethnic Audiences
+          </>
+        }
+        body="Our high-resolution displays are strategically placed inside high-traffic locations frequently visited by newcomers, international students, and members of various ethnic communities."
       />
       <div className="mx-auto grid max-w-container-max grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {brandBenefits.map(({ title, body, icon: Icon }) => (
@@ -272,7 +343,7 @@ function Benefits() {
         ))}
       </div>
       <div className="mx-auto mt-16 max-w-container-max md:mt-20">
-        <h2 className="mb-12 font-display text-4xl font-bold leading-tight md:text-5xl">
+        <h2 className="mb-12 text-center font-display text-4xl font-bold leading-tight md:text-5xl">
           Some of Our Past Campaigns
         </h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
@@ -335,7 +406,7 @@ function Benefits() {
 
 function HostBenefits() {
   return (
-    <section className="px-gutter py-section-gap-mobile md:py-[60px]">
+    <section id="become-a-host" className="px-gutter py-section-gap-mobile md:py-[60px]">
       <SectionIntro
         title="Benefits of Becoming a Host"
         body="Becoming a host for our screen network is extremely simple and brings about several benefits for your business."
@@ -362,10 +433,7 @@ function HostBenefits() {
 
 function HostSteps() {
   return (
-    <section
-      id="become-a-host"
-      className="bg-on-surface px-gutter py-section-gap-mobile text-white md:py-[70px]"
-    >
+    <section className="bg-on-surface px-gutter py-section-gap-mobile text-white md:py-[70px]">
       <div className="mx-auto max-w-container-max">
         <h2 className="mb-16 text-center font-display text-4xl font-bold leading-tight md:text-5xl">
           3 Steps to Become a Host
@@ -558,7 +626,7 @@ function Footer() {
   );
 }
 
-function SectionIntro({ title, body }: { title: string; body: string }) {
+function SectionIntro({ title, body }: { title: React.ReactNode; body: string }) {
   return (
     <div className="mx-auto mb-12 max-w-container-max text-center md:mb-16">
       <h2 className="mb-4 font-display text-4xl font-bold leading-tight md:text-5xl">
