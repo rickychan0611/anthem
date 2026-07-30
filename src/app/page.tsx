@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   Brush,
   Building2,
@@ -27,6 +27,16 @@ const screenImages = [
   { label: "Pegasus Health", src: "/Pegasus.png" },
   { label: "Honda", src: "/Honda.png" },
 ];
+
+function normalizeWebsiteUrl(value: FormDataEntryValue | null) {
+  if (typeof value !== "string") return "";
+
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+
+  return `https://${trimmed}`;
+}
 
 const navItems = [
   { label: "Home", href: "#top" },
@@ -461,6 +471,51 @@ function HostSteps() {
 }
 
 function ContactCta() {
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  // Remounts the auto-expanding textarea so its inline height clears on reset.
+  const [formKey, setFormKey] = useState(0);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    setStatus("loading");
+    setErrorMessage("");
+
+    const formData = new FormData(form);
+    const payload = {
+      name: formData.get("name"),
+      businessName: formData.get("businessName"),
+      email: formData.get("email"),
+      website: normalizeWebsiteUrl(formData.get("website")),
+      phone: formData.get("phone"),
+      message: formData.get("message"),
+    };
+
+    try {
+      const response = await fetch("/api/contact", {
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      });
+
+      const data = (await response.json()) as { error?: string };
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send message.");
+      }
+
+      setStatus("success");
+      form.reset();
+      setFormKey((value) => value + 1);
+    } catch (error) {
+      setStatus("error");
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to send message. Please try again.",
+      );
+    }
+  };
+
   return (
     <section
       id="contact"
@@ -477,43 +532,69 @@ function ContactCta() {
             with you shortly!
           </p>
         </div>
-        <form className="rounded-card border border-border-light bg-white p-6 shadow-2xl sm:p-10">
+        <form
+          className="rounded-card border border-border-light bg-white p-6 shadow-2xl sm:p-10"
+          onSubmit={handleSubmit}
+        >
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <LabelInput label="Your Name" placeholder="" required type="text" />
-            <LabelInput label="Business Name" placeholder="" required type="text" />
+            <LabelInput label="Your Name" name="name" placeholder="" required type="text" />
+            <LabelInput
+              label="Business Name"
+              name="businessName"
+              placeholder=""
+              required
+              type="text"
+            />
           </div>
           <LabelInput
             className="mt-6"
             label="Email Address"
+            name="email"
             placeholder=""
             required
             type="email"
           />
           <LabelInput
             className="mt-6"
+            inputMode="url"
             label="Website URL"
+            name="website"
             optional
-            placeholder=""
-            type="url"
+            placeholder="www.example.com"
+            type="text"
           />
           <LabelInput
             className="mt-6"
             label="Phone Number"
+            name="phone"
             placeholder=""
             required
             type="tel"
           />
           <LabelTextarea
             className="mt-6"
+            key={formKey}
             label="Your Message"
+            name="message"
             placeholder=""
             required
           />
+          {status === "success" ? (
+            <p className="mt-6 rounded-lg bg-mint-soft px-4 py-3 text-sm font-medium text-on-surface">
+              Thanks for reaching out. We&apos;ll be in touch shortly!
+            </p>
+          ) : null}
+          {status === "error" ? (
+            <p className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+              {errorMessage}
+            </p>
+          ) : null}
           <button
-            className="mt-6 w-full rounded-lg bg-mint-hover py-5 font-bold text-on-primary-container shadow-md transition-all hover:-translate-y-0.5 hover:bg-on-primary-container"
+            className="mt-6 w-full rounded-lg bg-mint-hover py-5 font-bold text-on-primary-container shadow-md transition-all hover:-translate-y-0.5 hover:bg-on-primary-container disabled:cursor-not-allowed disabled:opacity-70"
+            disabled={status === "loading"}
             type="submit"
           >
-            Submit
+            {status === "loading" ? "Sending..." : "Submit"}
           </button>
         </form>
       </div>
@@ -523,18 +604,22 @@ function ContactCta() {
 
 function LabelInput({
   label,
+  name,
   placeholder,
   type,
   className = "",
   required = false,
   optional = false,
+  inputMode,
 }: {
   label: string;
+  name: string;
   placeholder: string;
   type: string;
   className?: string;
   required?: boolean;
   optional?: boolean;
+  inputMode?: "url" | "text" | "email" | "tel";
 }) {
   return (
     <label className={`block space-y-2 ${className}`}>
@@ -550,6 +635,8 @@ function LabelInput({
       </span>
       <input
         className="w-full rounded-lg border border-border-light px-5 py-4 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary-container"
+        inputMode={inputMode}
+        name={name}
         placeholder={placeholder}
         required={required}
         type={type}
@@ -560,11 +647,13 @@ function LabelInput({
 
 function LabelTextarea({
   label,
+  name,
   placeholder,
   className = "",
   required = false,
 }: {
   label: string;
+  name: string;
   placeholder: string;
   className?: string;
   required?: boolean;
@@ -587,6 +676,7 @@ function LabelTextarea({
       </span>
       <textarea
         className="min-h-32 w-full resize-none overflow-hidden rounded-lg border border-border-light px-5 py-4 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary-container"
+        name={name}
         onInput={resizeTextarea}
         placeholder={placeholder}
         ref={textareaRef}
