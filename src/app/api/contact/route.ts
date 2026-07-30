@@ -10,6 +10,8 @@ type ContactPayload = {
   website?: string;
   phone?: string;
   message?: string;
+  /** Honeypot — bots fill this; humans leave it empty. */
+  companyWebsite?: string;
 };
 
 function escapeHtml(value: string) {
@@ -54,6 +56,11 @@ export async function POST(request: Request) {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+
+  // If the honeypot was filled, pretend success so bots don't keep retrying.
+  if (body.companyWebsite?.trim()) {
+    return NextResponse.json({ success: true });
   }
 
   const name = body.name?.trim();

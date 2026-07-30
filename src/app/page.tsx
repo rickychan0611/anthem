@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
+  AlertCircle,
   Brush,
   Building2,
+  CheckCircle2,
   Menu,
   Megaphone,
   Monitor,
@@ -490,6 +492,7 @@ function ContactCta() {
       website: normalizeWebsiteUrl(formData.get("website")),
       phone: formData.get("phone"),
       message: formData.get("message"),
+      companyWebsite: formData.get("companyWebsite"),
     };
 
     try {
@@ -511,7 +514,9 @@ function ContactCta() {
     } catch (error) {
       setStatus("error");
       setErrorMessage(
-        error instanceof Error ? error.message : "Failed to send message. Please try again.",
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again in a moment.",
       );
     }
   };
@@ -533,9 +538,24 @@ function ContactCta() {
           </p>
         </div>
         <form
-          className="rounded-card border border-border-light bg-white p-6 shadow-2xl sm:p-10"
+          className="relative rounded-card border border-border-light bg-white p-6 shadow-2xl sm:p-10"
           onSubmit={handleSubmit}
         >
+          {/* Honeypot: hidden from people, bots often fill it */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -left-[9999px] top-auto h-0 w-0 overflow-hidden opacity-0"
+          >
+            <label htmlFor="companyWebsite">Company website</label>
+            <input
+              autoComplete="off"
+              id="companyWebsite"
+              name="companyWebsite"
+              tabIndex={-1}
+              type="text"
+            />
+          </div>
+
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <LabelInput label="Your Name" name="name" placeholder="" required type="text" />
             <LabelInput
@@ -579,16 +599,41 @@ function ContactCta() {
             placeholder=""
             required
           />
+
           {status === "success" ? (
-            <p className="mt-6 rounded-lg bg-mint-soft px-4 py-3 text-sm font-medium text-on-surface">
-              Thanks for reaching out. We&apos;ll be in touch shortly!
-            </p>
+            <div
+              className="mt-6 flex gap-3 rounded-lg border border-primary-container/40 bg-mint-soft px-4 py-4"
+              role="status"
+            >
+              <CheckCircle2 aria-hidden className="mt-0.5 size-6 shrink-0 text-primary" />
+              <div>
+                <p className="font-display text-base font-bold text-on-surface">
+                  Thank you — your message was sent!
+                </p>
+                <p className="mt-1 text-sm leading-6 text-on-surface-variant">
+                  We received your note and will get back to you shortly.
+                </p>
+              </div>
+            </div>
           ) : null}
+
           {status === "error" ? (
-            <p className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-              {errorMessage}
-            </p>
+            <div
+              className="mt-6 flex gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-4"
+              role="alert"
+            >
+              <AlertCircle aria-hidden className="mt-0.5 size-6 shrink-0 text-red-600" />
+              <div>
+                <p className="font-display text-base font-bold text-red-800">
+                  Sorry — we couldn&apos;t send your message.
+                </p>
+                <p className="mt-1 text-sm leading-6 text-red-700">
+                  {errorMessage} Please try again, or email us directly if the problem continues.
+                </p>
+              </div>
+            </div>
           ) : null}
+
           <button
             className="mt-6 w-full rounded-lg bg-mint-hover py-5 font-bold text-on-primary-container shadow-md transition-all hover:-translate-y-0.5 hover:bg-on-primary-container disabled:cursor-not-allowed disabled:opacity-70"
             disabled={status === "loading"}
